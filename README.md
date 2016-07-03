@@ -4,11 +4,11 @@ The Lightweight Authentication for Secure Automotive Networks (LASAN) is an auth
 This repository contains intermediate and final results necessary to reproduce the measurements and conclusions  described in the above paper.
 
 ##Parameters
-This directory contains the basic measurements, executed on an STM32F415 microcontroller.
+This directory contains the basic parameter set for the IVNS, found on an STM32F415 microcontroller.
 
 ##Performance
 This directory contains the summarized latency measurements for multiple different authentication frameworks. All results have been achieved with the IVNS (https://github.com/PhilippMundhenk/IVNS). All measurements are based on the parameter sets above, thus simulating and STM32F415 microcontroller. Due to storage space considerations, only the summarized results have been added. The folders structure is as follows:
-<Framework under Test>/<Crypto Library>/<HW Acceleration>
+\<Framework under Test\>/\<Crypto Library\>/\<HW Acceleration\>
 
 ##Verification
 This directory contains the Scyther files required for verifying the ECU authentication and stream authorization protocols.
