@@ -1,0 +1,68 @@
+/* 
+ * Stream Authorization Protocol (Mundhenk, Paverd, et al. 2015)
+ * 
+ * A lightweight protocol to authorize an ECU (e) to send and receive
+ * messages (m1, ...) in a given message stream (s). Each ECU (e) has 
+ * already authenticated itself to a central security module (y) and set 
+ * up a shared symetric secret key (kesym) with the security module. 
+ * The ECU contacts the security module to request access to a particular 
+ * stream and the access decision is made by the security module based on 
+ * the ECU's identity. Any number of ECUs may participate in a single 
+ * stream (e.g. broadcast channel).
+ */
+
+
+usertype Key;
+usertype TimeStamp;
+usertype Stream;
+
+protocol stream-auth(E1,E2,Y)
+{
+	role E1
+	{
+		fresh n: Nonce;
+		fresh we: TimeStamp;
+		var wy: TimeStamp;
+		var ks1sym: Key;
+
+		not match(E1,E2);
+		send_1(E1,Y,{E1,E2,n,we}k(E1,Y)); 
+		recv_2(Y,E1,
+		     {E1,E2,ks1sym,n,wy}k(E1,Y));
+
+		claim(E1,Secret,ks1sym);
+		claim(E1,Nisynch);
+	}	
+	
+	role E2
+	{
+		var n: Nonce;
+		var wy: TimeStamp;
+		var ks1sym: Key;
+
+		not match(E1,E2);
+		recv_3(Y,E2,
+		     {E1,E2,ks1sym,n,wy}k(E2,Y));
+
+		claim(E2,Secret,ks1sym);
+		claim(E2,Nisynch);
+	}
+
+	role Y
+	{
+		var n: Nonce;
+		var we: TimeStamp;
+		fresh wy: TimeStamp;
+		fresh ks1sym: Key;
+
+		recv_1(E1,Y,{E1,E2,n,we}k(E1,Y));
+		send_2(Y,E1,
+		     {E1,E2,ks1sym,n,wy}k(E1,Y));
+		send_3(Y,E2,
+		     {E1,E2,ks1sym,n,wy}k(E2,Y));
+
+		claim(Y,Secret,ks1sym);
+		claim(Y,Nisynch);
+	}
+}
+

@@ -1,0 +1,1 @@
+This directory contains the Scyther files required for verifying the ECU authentication and stream authorization protocols.

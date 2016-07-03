@@ -1,0 +1,56 @@
+/* 
+ * ECU Mutual Authentication Protocol (Mundhenk, Paverd, et al. 2015)
+ * 
+ * A lightweight protocol to achieve mutual authentication between an 
+ * ECU (e) and a trusted security module (y) in an automotive context. 
+ * Each device has a certificate containing its identity and public key, 
+ * signed by a trusted root CA. All parties have the root certificates 
+ * for the trusted CA. These can be regularly updated using CRLs but 
+ * this beyond the scope of the model. Scyther assumes that public keys 
+ * have already been securely distributed among participants so the 
+ * certificate distribution messages are not shown in the model.
+ */
+
+
+usertype Key;
+usertype TimeStamp;
+hashfunction H;
+
+protocol ecu-auth(E,Y)
+{
+	role E
+	{
+		fresh n: Nonce;
+		fresh we: TimeStamp;
+		var wy: TimeStamp;
+		fresh kesym: Key;
+
+		send_1(E,Y,{E,Y,kesym,n,we}pk(Y),
+		         {H(E,Y,kesym,n,we)}sk(E));
+		recv_2(Y,E,{Y,E,n,wy}kesym);
+
+		claim(E,Secret,kesym);
+		claim(E,Nisynch);
+	}	
+	
+	role Y
+	{
+		var n: Nonce;
+		var we: TimeStamp;
+		fresh wy: TimeStamp;
+		var kesym: Key;
+
+		recv_1(E,Y,{E,Y,kesym,n,we}pk(Y),
+		         {H(E,Y,kesym,n,we)}sk(E));
+		send_2(Y,E,{Y,E,n,wy}kesym);
+
+		claim(Y,Secret,kesym);
+		claim(Y,Nisynch);
+	}
+
+}
+
+
+
+
+
